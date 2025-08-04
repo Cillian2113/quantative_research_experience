@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from datetime import datetime
 
 #Read csv file into df
 gas = pd.read_csv('Nat_Gas.csv', parse_dates=['Dates'], date_format='%m/%d/%y')
@@ -46,17 +47,16 @@ daily_gas_forecast['Prices'] = daily_gas_forecast['Prices'].interpolate(method='
 
 
 
-def estimate_price(date): #Enter date as'YYYY-MM-DD'
-    date = pd.to_datetime(date)
+def estimate_price(date_str):
+    date = datetime.strptime(date_str, '%Y-%m-%d')
     if date > last_date:
-        return round(daily_gas_forecast.loc[date].iloc[0],2)
+        return round(daily_gas_forecast.loc[date].iloc[0], 2)
     else:
-        return round(daily_prices.loc[date].iloc[0],2)
+        return round(daily_prices.loc[date].iloc[0], 2)
 
 
-
-input_date = input("Enter Enter date as YYYY-MM-DD")
-print(estimate_price(input_date))
+if __name__ == "__main__":
+    input_date = input("Enter Enter date as YYYY-MM-DD")
 
 """
 plt.figure(figsize=(10,5))
