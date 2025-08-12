@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 
 loan_data = pd.read_csv('Task 3 and 4_Loan_Data.csv')
+scores = np.sort(loan_data["fico_score"])
 
 def quantize_fico(K):
-    scores = np.sort(loan_data["fico_score"])
+    
     values, counts = np.unique(scores, return_counts=True)
     n = len(values)
     
@@ -49,13 +50,35 @@ def quantize_fico(K):
     
     return boundaries
 
+def total_mse(bucket_boundaries):
+    total = 0
+    for score in scores:
+        for (low, high) in bucket_boundaries:
+            if low <= score <= high:
+                bucket_mid = (low + high) / 2
+                total += (score - bucket_mid) ** 2
+                break
+    mse = total / len(scores)
+    return mse
+
 
 if __name__ == "__main__":
     K = 5  
     boundaries = quantize_fico(K)
     boundaries = [(int(low), int(high)) for low, high in boundaries]
-    print(boundaries)
 
+    n = len(scores)
+    quantile_indices = [0, n//5, 2*n//5, 3*n//5, 4*n//5, n]
+    quantile_boundaries = []
+    bucket_mean = []
+    for i in range(5):
+        bucket_scores = scores[quantile_indices[i]:quantile_indices[i+1]]
+        min_score = bucket_scores[0]
+        max_score = bucket_scores[-1]
+        quantile_boundaries.append((min_score, max_score))
+    quantile_boundaries = [(int(low), int(high)) for low, high in quantile_boundaries]
+    print(total_mse(quantile_boundaries))
+    print(total_mse(boundaries))
 
 
 
